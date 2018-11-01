@@ -40,7 +40,7 @@ class DiscourseClient(object):
 
     def list_users(self, type, **kwargs):
         """ optional user search: filter='test@example.com' or filter='scott' """
-        return self._get('/admin/users/list/{0}.json'.format(type), **kwargs)      
+        return self._get('/admin/users/list/{0}.json'.format(type), **kwargs)
 
     def update_avatar_from_url(self, username, url, **kwargs):
         return self._post('/users/{0}/preferences/avatar'.format(username), file=url, **kwargs)
@@ -68,7 +68,7 @@ class DiscourseClient(object):
         return self._put('/users/{0}'.format(username), **kwargs)
 
     def update_username(self, username, new_username, **kwargs):
-        return self._put('/users/{0}/preferences/username'.format(username), username=new_username, **kwargs)
+        return self._put('/users/{0}/preferences/username'.format(username), new_username=new_username, **kwargs)
 
     def set_preference(self, username=None, **kwargs):
         if username is None:
