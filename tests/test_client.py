@@ -59,7 +59,7 @@ class TestUser(ClientBaseTestCase):
     def test_update_username(self, request):
         prepare_response(request)
         self.client.update_username('someuser', 'newname')
-        self.assertRequestCalled(request, 'PUT', '/users/someuser/preferences/username', username='newname')
+        self.assertRequestCalled(request, 'PUT', '/users/someuser/preferences/username', new_username='newname')
 
 
 @mock.patch('requests.request')
@@ -111,7 +111,7 @@ class MiscellaneousTests(ClientBaseTestCase):
         r = self.client.categories()
         self.assertRequestCalled(request, 'GET', '/categories.json')
         self.assertEqual(r, request().json()['category_list']['categories'])
-        
+
     def test_users(self, request):
         prepare_response(request)
         r = self.client.users()
