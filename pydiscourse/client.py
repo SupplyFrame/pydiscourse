@@ -42,6 +42,9 @@ class DiscourseClient(object):
         """ optional user search: filter='test@example.com' or filter='scott' """
         return self._get('/admin/users/list/{0}.json'.format(type), **kwargs)
 
+    def log_out_user(self, userid):
+        return self._post('/admin/users/{0}/log_out'.format(userid))
+
     def update_avatar_from_url(self, username, url, **kwargs):
         return self._post('/users/{0}/preferences/avatar'.format(username), file=url, **kwargs)
 
