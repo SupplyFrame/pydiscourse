@@ -90,6 +90,9 @@ class DiscourseClient(object):
         """
         return self._delete('/admin/users/{0}.json'.format(userid), **kwargs)
 
+    def anonymize_user(self, userid, **kwargs):
+        return self._post('/admin/users/{0}/anonymize'.format(userid), **kwargs)
+
     def users(self, filter=None, **kwargs):
         if filter is None:
             filter = 'active'

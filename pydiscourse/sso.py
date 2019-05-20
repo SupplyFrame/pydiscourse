@@ -50,8 +50,12 @@ def sso_validate(payload, signature, secret):
     if not payload:
         raise DiscourseError('Invalid payload..')
 
+    #py3
+    payload = payload.encode()
+    secret = secret.encode()
+
     decoded = base64.decodestring(payload)
-    if 'nonce' not in decoded:
+    if b'nonce' not in decoded:
         raise DiscourseError('Invalid payload..')
 
     h = hmac.new(secret, payload, digestmod=hashlib.sha256)
@@ -60,9 +64,9 @@ def sso_validate(payload, signature, secret):
     if this_signature != signature:
         raise DiscourseError('Payload does not match signature.')
 
-    nonce = decoded.split('=')[1]
+    nonce = decoded.split(b'=')[1]
 
-    return nonce
+    return nonce.decode()
 
 
 def sso_redirect_url(nonce, secret, email, external_id, username, **kwargs):
@@ -82,7 +86,10 @@ def sso_redirect_url(nonce, secret, email, external_id, username, **kwargs):
         'username': username
     })
 
-    return_payload = base64.encodestring(urlencode(kwargs))
+    #py3
+    secret = secret.encode()
+
+    return_payload = base64.encodestring(urlencode(kwargs).encode())
     h = hmac.new(secret, return_payload, digestmod=hashlib.sha256)
     query_string = urlencode({'sso': return_payload, 'sig': h.hexdigest()})
 

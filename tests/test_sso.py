@@ -36,6 +36,9 @@ class SSOTestCase(unittest.TestCase):
 class Test_sso_validate(SSOTestCase):
     def test_missing_args(self):
         with self.assertRaises(DiscourseError):
+            sso.sso_validate(self.payload, self.signature, None)
+
+        with self.assertRaises(DiscourseError):
             sso.sso_validate(None, self.signature, self.secret)
 
         with self.assertRaises(DiscourseError):
@@ -47,6 +50,10 @@ class Test_sso_validate(SSOTestCase):
     def test_invalid_signature(self):
         with self.assertRaises(DiscourseError):
             sso.sso_validate(self.payload, 'notavalidsignature', self.secret)
+
+    def test_invalid_payload(self):
+        with self.assertRaises(DiscourseError):
+            sso.sso_validate('blahblah', self.signature, self.secret)
 
     def test_valid_nonce(self):
         nonce = sso.sso_validate(self.payload, self.signature, self.secret)
@@ -65,8 +72,8 @@ class Test_sso_redirect_url(SSOTestCase):
         sso.sso_validate(payload, params['sig'][0], self.secret)
 
         # check the params have all the data we expect
-        payload = base64.decodestring(payload)
-        payload = unquote(payload)
+        payload = base64.decodestring(payload.encode())
+        payload = unquote(payload.decode())
         payload = dict((p.split('=') for p in payload.split('&')))
 
         self.assertEqual(payload, {
