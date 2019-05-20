@@ -61,6 +61,43 @@ class TestUser(ClientBaseTestCase):
         self.client.update_username('someuser', 'newname')
         self.assertRequestCalled(request, 'PUT', '/users/someuser/preferences/username', new_username='newname')
 
+    def test_update_avatar_from_url(self, request):
+        prepare_response(request)
+        avatar_url = 'http://placekitten.com/200/300'
+        self.client.update_avatar_from_url('someuser', avatar_url)
+        self.assertRequestCalled(request, 'POST', '/users/someuser/preferences/avatar', file=avatar_url)
+
+    def test_update_avatar_image(self, request):
+        prepare_response(request)
+        avatar_url = 'http://placekitten.com/200/300'
+        self.client.update_avatar_image('someuser', avatar_url)
+        self.assertRequestCalled(request, 'POST', '/users/someuser/preferences/avatar', files = {'file': avatar_url} )
+
+    def test_toggle_gravatar(self, request):
+        prepare_response(request)
+        self.client.toggle_gravatar('someuser')
+        self.assertRequestCalled(request, 'PUT', '/users/someuser/preferences/avatar/toggle', use_uploaded_avatar='true')
+
+    def test_toggle_gravatar_false(self, request):
+        prepare_response(request)
+        self.client.toggle_gravatar('someuser', False)
+        self.assertRequestCalled(request, 'PUT', '/users/someuser/preferences/avatar/toggle', use_uploaded_avatar='false')
+
+    def test_pick_avatar(self, request):
+        prepare_response(request)
+        self.client.pick_avatar('someuser')
+        self.assertRequestCalled(request, 'PUT', '/users/someuser/preferences/avatar/pick')
+
+    def test_set_preference(self, request):
+        prepare_response(request)
+        self.client.set_preference('someuser')
+        self.assertRequestCalled(request, 'PUT', '/users/someuser')
+
+    def test_set_preference_default(self, request):
+        prepare_response(request)
+        self.client.set_preference()
+        self.assertRequestCalled(request, 'PUT', '/users/testuser')
+
 
 @mock.patch('requests.request')
 class TestTopics(ClientBaseTestCase):
@@ -99,6 +136,55 @@ class TestTopics(ClientBaseTestCase):
 
 
 @mock.patch('requests.request')
+class TestAdmin(ClientBaseTestCase):
+
+    def test_site_settings(self, request):
+        prepare_response(request)
+        self.client.site_settings(enable_forwarded_emails=False)
+        self.assertRequestCalled(request, 'PUT', '/admin/site_settings/enable_forwarded_emails', enable_forwarded_emails=False)
+
+    def test_trust_level(self, request):
+        prepare_response(request)
+        self.client.trust_level('someuser', 2)
+        self.assertRequestCalled(request, 'PUT', '/admin/users/someuser/trust_level', level=2)
+
+    def test_suspend(self, request):
+        prepare_response(request)
+        self.client.suspend('someuser', 600, 'because')
+        self.assertRequestCalled(request, 'PUT', '/admin/users/someuser/suspend', duration=600, reason='because')
+
+    def test_users(self, request):
+        prepare_response(request)
+        r = self.client.users()
+        self.assertRequestCalled(request, 'GET', '/admin/users/list/active.json')
+
+    def test_list_users(self, request):
+        prepare_response(request)
+        r = self.client.list_users('happy')
+        self.assertRequestCalled(request, 'GET', '/admin/users/list/happy.json')
+
+    def test_log_out_user(self, request):
+        prepare_response(request)
+        r = self.client.log_out_user('someuser')
+        self.assertRequestCalled(request, 'POST', '/admin/users/someuser/log_out')
+
+    def test_generate_api_key(self, request):
+        prepare_response(request)
+        self.client.generate_api_key('someuser')
+        self.assertRequestCalled(request, 'POST', '/admin/users/someuser/generate_api_key')
+
+    def test_anonymize_user(self, request):
+        prepare_response(request)
+        self.client.anonymize_user('someuser')
+        self.assertRequestCalled(request, 'PUT', '/admin/users/someuser/anonymize')
+
+    def test_delete_user(self, request):
+        prepare_response(request)
+        self.client.delete_user('someuser')
+        self.assertRequestCalled(request, 'DELETE', '/admin/users/someuser.json')
+
+
+@mock.patch('requests.request')
 class MiscellaneousTests(ClientBaseTestCase):
 
     def test_search(self, request):
@@ -111,8 +197,3 @@ class MiscellaneousTests(ClientBaseTestCase):
         r = self.client.categories()
         self.assertRequestCalled(request, 'GET', '/categories.json')
         self.assertEqual(r, request().json()['category_list']['categories'])
-
-    def test_users(self, request):
-        prepare_response(request)
-        r = self.client.users()
-        self.assertRequestCalled(request, 'GET', '/admin/users/list/active.json')

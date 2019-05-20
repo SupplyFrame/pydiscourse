@@ -82,6 +82,9 @@ class DiscourseClient(object):
     def generate_api_key(self, userid, **kwargs):
         return self._post('/admin/users/{0}/generate_api_key'.format(userid), **kwargs)
 
+    def anonymize_user(self, userid, **kwargs):
+        return self._put('/admin/users/{0}/anonymize'.format(userid), **kwargs)
+
     def delete_user(self, userid, **kwargs):
         """
             block_email='true'
@@ -89,9 +92,6 @@ class DiscourseClient(object):
             block_urls='false'
         """
         return self._delete('/admin/users/{0}.json'.format(userid), **kwargs)
-
-    def anonymize_user(self, userid, **kwargs):
-        return self._post('/admin/users/{0}/anonymize'.format(userid), **kwargs)
 
     def users(self, filter=None, **kwargs):
         if filter is None:
