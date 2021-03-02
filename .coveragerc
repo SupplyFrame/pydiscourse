@@ -1,3 +1,5 @@
 [run]
-
-include: pydiscourse/*
+source = ./
+omit =
+  */.tox/*.py
+  */tests/*.py
